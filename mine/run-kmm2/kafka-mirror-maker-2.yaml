@@ -10,7 +10,7 @@ spec:
   connectCluster: "cluster-b" # Must be the target custer
   clusters:
     - alias: "cluster-a" # Source cluster
-      bootstrapServers: cluster-a-kafka-bootstrap:9092
+      bootstrapServers: cluster-a-kafka-plain-bootstrap:9092
     - alias: "cluster-b" # Target cluster
       bootstrapServers: cluster-b-kafka-bootstrap:9092
       config:
@@ -22,19 +22,43 @@ spec:
     - sourceCluster: "cluster-a"
       targetCluster: "cluster-b"
       sourceConnector:
-        tasksMax: 1
+        tasksMax: 3 # 这里是不是要和集群的分区数一致？
         config:
           # -1 means it will use the default replication factor configured in the broker
           replication.factor: -1
           offset-syncs.topic.replication.factor: -1
-          sync.topic.acls.enabled: "false"
-          refresh.topics.interval.seconds: 600
+          sync.topic.acls.enabled: "true"
+          sync.topic.configs.enabled: "true"
+          sync.topic.configs.interval.seconds: 10
+          refresh.topics.interval.seconds: 10
       checkpointConnector:
         tasksMax: 1
         config:
           # -1 means it will use the default replication factor configured in the broker
           checkpoints.topic.replication.factor: -1
-          sync.group.offsets.enabled: "false"
-          refresh.groups.interval.seconds: 600
+          sync.group.offsets.enabled: "true"
+          refresh.groups.interval.seconds: 10
+      topicsPattern: ".*"
+      groupsPattern: ".*"
+
+    - sourceCluster: "cluster-b"
+      targetCluster: "cluster-a"
+      sourceConnector:
+        tasksMax: 3 # 这里是不是要和集群的分区数一致？
+        config:
+          # -1 means it will use the default replication factor configured in the broker
+          replication.factor: -1
+          offset-syncs.topic.replication.factor: -1
+          sync.topic.acls.enabled: "true"
+          sync.topic.configs.enabled: "true"
+          sync.topic.configs.interval.seconds: 10
+          refresh.topics.interval.seconds: 10
+      checkpointConnector:
+        tasksMax: 1
+        config:
+          # -1 means it will use the default replication factor configured in the broker
+          checkpoints.topic.replication.factor: -1
+          sync.group.offsets.enabled: "true"
+          refresh.groups.interval.seconds: 10
       topicsPattern: ".*"
       groupsPattern: ".*"
