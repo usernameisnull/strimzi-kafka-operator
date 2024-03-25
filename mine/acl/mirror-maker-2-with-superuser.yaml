@@ -10,14 +10,11 @@ spec:
       - name: tls
         port: 9093
         type: internal
-        #        type: loadbalancer
         tls: true
         authentication:
           type: tls
       - name: external
         port: 9099
-        #        type: internal
-        #        type: nodeport
         type: loadbalancer
         tls: true
         authentication:
@@ -58,15 +55,11 @@ spec:
       - name: tls
         port: 9093
         type: internal
-        #        type: nodeport
-        #        type: loadbalancer
         tls: true
         authentication:
           type: tls
       - name: external
         port: 9099
-        #        type: internal
-        #        type: nodeport
         type: loadbalancer
         tls: true
         authentication:
@@ -191,8 +184,9 @@ spec:
       # MirrorCheckpointConnector
       - resource:
           type: cluster
+        # 改为All会导致mm2 pod重启
         operations:
-          - All
+          - Describe
       - resource:
           type: topic
           name: cluster-a.checkpoints.internal
@@ -222,6 +216,17 @@ kind: KafkaMirrorMaker2
 metadata:
   name: my-mirror-maker-2
 spec:
+  template:
+    buildPod:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - master01
   version: 3.6.1
   replicas: 1
   connectCluster: "cluster-b" # Must be the target custer
@@ -275,9 +280,9 @@ spec:
           # -1 means it will use the default replication factor configured in the broker
           checkpoints.topic.replication.factor: -1
           sync.group.offsets.enabled: "true"
-          emit.checkpoints.interval.seconds: 60
-          sync.group.offsets.interval.seconds: 60
-          refresh.groups.interval.seconds: 60
+          sync.group.offsets.interval.seconds: 10
+          emit.checkpoints.interval.seconds: 10
+          refresh.groups.interval.seconds: 10
       topicsPattern: ".*"
       groupsPattern: ".*"
 
