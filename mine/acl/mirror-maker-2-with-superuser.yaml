@@ -187,10 +187,6 @@ spec:
         # 改为All会导致mm2 pod重启
         operations:
           - Describe
-          - Write
-          - Alter
-          - AlterConfigs
-          - DescribeConfigs
       - resource:
           type: topic
           name: cluster-a.checkpoints.internal
@@ -279,7 +275,7 @@ spec:
           sync.topic.configs.interval.seconds: 60
           # https://issues.apache.org/jira/browse/KAFKA-15985
           # source和target集群之间consumer offset允许的最大偏移
-          offset.lag.max: 0
+          offset.lag.max: 100
       checkpointConnector:
         tasksMax: 1
         config:
